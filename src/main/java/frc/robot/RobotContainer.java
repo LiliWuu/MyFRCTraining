@@ -42,6 +42,8 @@ public class RobotContainer {
     DataLogManager.start();
     DataLogManager.logNetworkTables(true);
     DriverStation.startDataLog(DataLogManager.getLog(), true);
+    DriverStation.silenceJoystickConnectionWarning(true);
+
     configureDefaultCommands();
 
     // quick test
@@ -56,9 +58,9 @@ public class RobotContainer {
   private void configureDefaultCommands() {
     swerveSubsystem.setDefaultCommand(new DriveCommand(
             swerveSubsystem,
-            () -> pilot.getLeftX(),
-            () -> pilot.getLeftY(),
-            () -> pilot.getRightX()
+            () -> -pilot.getLeftX(),
+            () -> -pilot.getLeftY(),
+            () -> -pilot.getRightX()
         ));
   }
   /**

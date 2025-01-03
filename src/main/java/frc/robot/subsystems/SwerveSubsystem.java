@@ -6,6 +6,7 @@ import frc.robot.utils.ShuffleData;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class SwerveSubsystem extends SubsystemBase {
@@ -39,6 +40,11 @@ public class SwerveSubsystem extends SubsystemBase {
 
     public void drive(double xSpeed, double ySpeed, double rot) {
         ChassisSpeeds speeds = new ChassisSpeeds(xSpeed, ySpeed, rot);
+
+        SmartDashboard.putNumber("xSpeed", xSpeed);
+        SmartDashboard.putNumber("ySpeed", ySpeed);
+        SmartDashboard.putNumber("rot", rot);
+
         SwerveModuleState[] moduleStates = SwerveConstants.Drive.driveKinematics.toSwerveModuleStates(speeds);
 
         // normalize speeds to avoid exceeding motor limits
@@ -47,9 +53,14 @@ public class SwerveSubsystem extends SubsystemBase {
             SwerveConstants.Module.maxVelocity
         );
 
-        for (int i = 0; i < modules.length; i++) {
-            modules[i].setDesiredState(moduleStates[i]);
-        }
+    
+            modules[0].setDesiredState(moduleStates[0]);
+            modules[1].setDesiredState(moduleStates[1]);
+            modules[2].setDesiredState(moduleStates[2]);
+            modules[3].setDesiredState(moduleStates[3]);
+
+        
+    
     }
 
 
