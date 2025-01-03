@@ -34,6 +34,7 @@ public class SwerveConstants {
         public static final int[] encoderPorts = {11, 12, 13, 14};
 
         public static final double maxVelocity = 4.3;
+        public static final double maxAngularVelocity = 12.162;
     }
     
 }
