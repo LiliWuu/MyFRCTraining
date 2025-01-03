@@ -9,12 +9,7 @@ public class JoystickIO {
     private final SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
 
     public JoystickIO () {
-        swerveSubsystem.setDefaultCommand(new DriveCommand(
-            swerveSubsystem,
-            () -> pilot.getLeftX(),
-            () -> pilot.getLeftY(),
-            () -> pilot.getRightX()
-        ));
+        
     }
 
 

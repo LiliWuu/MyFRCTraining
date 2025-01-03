@@ -7,13 +7,22 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
+import frc.robot.utils.ShuffleData;
 
 public class SwerveModule {
     private final CANSparkMax driveMotor;
     private final CANSparkMax turnMotor;
     private final CANcoder encoder;
     private final PIDController turnPID;
-    
+
+    private final ShuffleData<Double> driveSpeed;
+    private final ShuffleData<Double> drivePosition;
+    private final ShuffleData<Double> turnAngle;
+    private final ShuffleData<Double> turnPIDError;
+
+    private SwerveModuleState desiredState = new SwerveModuleState();
+    private String name;
+
     public SwerveModule (int module) {
         driveMotor = new CANSparkMax(SwerveConstants.Module.driveMotorPorts[module], CANSparkMax.MotorType.kBrushless);
         turnMotor = new CANSparkMax(SwerveConstants.Module.turnMotorPorts[module], CANSparkMax.MotorType.kBrushless);
@@ -24,6 +33,21 @@ public class SwerveModule {
 
         driveMotor.getEncoder().setVelocityConversionFactor((1 / SwerveConstants.Module.driveMotorGearRatio) * Units.rotationsPerMinuteToRadiansPerSecond(1) * (SwerveConstants.Module.wheelDiameterMeters / 2));
 
+        if (module == 0) {
+            name = "FL module";
+        } else if (module == 1) {
+            name = "FR module";
+        } else if (module == 2) {
+            name = "BL module";
+        } else if (module == 3) {
+            name = "BR module";
+        }
+
+        // Initialize Shuffleboard data fields
+        driveSpeed = new ShuffleData<>("Swerve/Module" + name, "Drive Speed", 0.0);
+        drivePosition = new ShuffleData<>("Swerve/Module" + name, "Drive Position", 0.0);
+        turnAngle = new ShuffleData<>("Swerve/Module" + name, "Turn Angle", 0.0);
+        turnPIDError = new ShuffleData<>("Swerve/Module" + name, "Turn PID Error", 0.0);
     }
 
     public void setDesiredState (SwerveModuleState state) {
@@ -37,12 +61,22 @@ public class SwerveModule {
             speed = 0;
         }
 
+        this.desiredState = state;
+
+
         driveMotor.set(speed);
         turnMotor.set(turnPID.calculate(getAngle(), angle));
+
+       
+
     }
 
     public SwerveModuleState getState() {
         return new SwerveModuleState(driveMotor.getEncoder().getVelocity(), Rotation2d.fromRadians(getAngle()));
+    }
+
+    public SwerveModuleState getDesiredState() {
+        return desiredState;
     }
 
     // calculate the current angle in radians
@@ -50,6 +84,18 @@ public class SwerveModule {
         double angleRotations = encoder.getAbsolutePosition().getValue();
         double angleDegrees = angleRotations * 360;
         return Units.degreesToRadians(angleDegrees);
+    }
+
+    private double getRotVelocity() {
+        return Units.rotationsToRadians(encoder.getVelocity().getValueAsDouble());
+    };
+
+    // called within the swerve subsystem's periodic
+    public void periodic() {
+        driveSpeed.set(driveMotor.getEncoder().getVelocity());
+        drivePosition.set(driveMotor.getEncoder().getPosition());
+        turnAngle.set(getAngle());
+        turnPIDError.set(turnPID.getPositionError());
     }
 
     
